@@ -3,31 +3,33 @@ package com.example.movie_list1
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.movie_list1.MovieItem
+import kotlinx.android.synthetic.main.movie_item.view.*
 
-class MovieAdapter(private val movieList: List<MovieItem>): RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
+class MovieAdapter(
+    private val movies : List<MovieItem>
+) : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>(){
+
+    class MovieViewHolder(view : View) : RecyclerView.ViewHolder(view){
+        private val IMAGE_BASE = "https://image.tmdb.org/t/p/w500/"
+        fun bindMovie(movie : MovieItem){
+            itemView.movie_title.text = movie.title
+            //itemView.movie_release_date.text = movie.release
+            Glide.with(itemView).load(IMAGE_BASE + movie.poster).into(itemView.movie_image)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.movie_item,
-        parent,false)
-        return MovieViewHolder(itemView)
+        return MovieViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.movie_item, parent, false)
+        )
     }
+
+    override fun getItemCount(): Int = movies.size
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        val currentItem = movieList[position]
-
-        holder.imageView.setImageResource(currentItem.imageResource)
-        holder.textView.text = currentItem.text1
+        holder.bindMovie(movies.get(position))
     }
-
-    override fun getItemCount() = movieList.size
-
-    class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val imageView: ImageView = itemView.findViewById(R.id.movie_image)
-        val textView: TextView= itemView.findViewById(R.id.movie_title)
-    }
-
-
 }

@@ -4,35 +4,33 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
+import retrofit2.Call
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
-
-    //private lateinit var linearLayoutManager: LinearLayoutManager
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val movieList = fillMovieList(500)
-        recycler_view.adapter = MovieAdapter(movieList)
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.setHasFixedSize(true)
+        getMovieData { movies : List<MovieItem> ->
+            recycler_view.adapter = MovieAdapter(movies)
+        }
 
     }
 
-    private fun fillMovieList(size: Int): List<MovieItem> {
+    private fun getMovieData(callback: (List<MovieItem>) -> Unit){
+        val apiService = MovieApiService.getInstance().create(MovieApiInterface::class.java)
+        apiService.getMovieList().enqueue(object : retrofit2.Callback<MovieResponse>{
+            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                return callback(response.body()!!.movie_items)
+            }
 
-        val list = ArrayList<MovieItem>()
+            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {}
 
-        for (i in 0 until size){
-           val drawable = R.drawable.the_dark_knight
-
-            val item = MovieItem(drawable, "Movie $i")
-            list += item
-        }
-        return list
-
+        })
     }
 
 }
